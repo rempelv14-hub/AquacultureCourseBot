@@ -25,13 +25,25 @@ MATERIALS_LINK = "https://disk.yandex.com/d/Yyum24diLez7Zw"
 # ================== VIDEO file_id ==================
 INTRO_VIDEO_ID = "BAACAgIAAxkBAANpaaRSWp8aOkE3mcivVcQDJ9hEAAECAAIOkgACuEEgSZZk99fCbt-oOgQ"
 
-REVIEW_VIDEO_IDS = [
-    "BAACAgIAAxkBAAN1aaRTG8n4WCTld4QhNf4nBtm6c3kAAiCSAAK4QSBJwJLxdJEE2VU6BA",
-    "BAACAgIAAxkBAAN3aaRTMrIxxmDfUV4fDtcL_WqA7VgAAieSAAK4QSBJ0AABt8XJic8LOgQ",
-    "BAACAgIAAxkBAAN5aaRTTEpDNNK9RHRJEiRaiu0zX3UAAiuSAAK4QSBJpfcnXUqCPF86BA",
-    "BAACAgIAAxkBAAN7aaRTZC-mV7sEgpsyZohoK9BV4KkAAi-SAAK4QSBJlk-ilX5qJ6s6BA",
-    "BAACAgIAAxkBAAN9aaRT3HldPJ1gSpveLSmQ06d1nYAAAkSSAAK4QSBJ4Own9SEfFsY6BA",
-]
+REVIEW_VIDEO_IDS = {
+    "ru": [
+        "BAACAgIAAxkBAAN1aaRTG8n4WCTld4QhNf4nBtm6c3kAAiCSAAK4QSBJwJLxdJEE2VU6BA",
+        "BAACAgIAAxkBAAN3aaRTMrIxxmDfUV4fDtcL_WqA7VgAAieSAAK4QSBJ0AABt8XJic8LOgQ",
+        "BAACAgIAAxkBAAN5aaRTTEpDNNK9RHRJEiRaiu0zX3UAAiuSAAK4QSBJpfcnXUqCPF86BA",
+        "BAACAgIAAxkBAAN7aaRTZC-mV7sEgpsyZohoK9BV4KkAAi-SAAK4QSBJlk-ilX5qJ6s6BA",
+        "BAACAgIAAxkBAAN9aaRT3HldPJ1gSpveLSmQ06d1nYAAAkSSAAK4QSBJ4Own9SEfFsY6BA",
+    ],
+    "kz": [
+        "BAACAgIAAxkBAAMCaaxF4ZQu7VTzzCz7fyGNBX3oz4UAAoGSAALtMGhJNgzVea3o5Po6BA",
+        "BAACAgIAAxkBAAMEaaxGHSHOusqnm3o03fEd3m6RwggAAoeSAALtMGhJiWx1YpuQ5aY6BA",
+        "BAACAgIAAxkBAAMGaaxGM-IujAw-FTmFhAQrwhh06FYAAoqSAALtMGhJyORgI_IER6M6BA",
+        "BAACAgIAAxkBAAMIaaxGaW_xkJ73YxMXz38OpIZmRqwAAo-SAALtMGhJqpgIKtVx1mc6BA",
+        "BAACAgIAAxkBAAMKaaxGghIQSR3R57cb2OgKdbIIg5gAApKSAALtMGhJb3QNBQgkkKk6BA",
+        "BAACAgIAAxkBAAMMaaxGmbaAlKOGmoBeJ_vYZiD6EoUAApOSAALtMGhJEy9Sc-xqvFw6BA",
+        "BAACAgIAAxkBAAMOaaxGsrhGB1PCExSBkXe1pS8TmpgAApWSAALtMGhJ9n10go_afpc6BA",
+        "BAACAgIAAxkBAAMQaaxGzkubwDpd1X1lMUOgz7gWbbIAApiSAALtMGhJgc4AAeLJoOWmOgQ",
+    ]
+}
 
 # ================== DB (SQLite) ==================
 DB_LOCK = asyncio.Lock()
@@ -61,7 +73,6 @@ def db_init():
             plan TEXT
         )""")
 
-        # Если таблица была создана раньше без поля lang — добавим его
         try:
             cur.execute("ALTER TABLE users ADD COLUMN lang TEXT DEFAULT 'ru'")
         except sqlite3.OperationalError:
@@ -206,6 +217,7 @@ TEXTS = {
         "rejected_answer": "Отклонено",
         "plan_basic": "Базовый",
         "plan_premium": "Премиум",
+        "lang_btn": "🌐 Сменить язык",
     },
     "kz": {
         "choose_lang": "🌐 Выберите язык / Тілді таңдаңыз",
@@ -274,6 +286,7 @@ TEXTS = {
         "rejected_answer": "Қабылданбады",
         "plan_basic": "Базалық",
         "plan_premium": "Премиум",
+        "lang_btn": "🌐 Тілді өзгерту",
     }
 }
 
@@ -354,7 +367,7 @@ def kb_review_nav(lang: str, i: int, total: int):
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode="Markdown"))
 dp = Dispatcher()
 
-# ===== фоновая отправка тарифов =====
+# ================== ФОН ==================
 async def send_tariffs_later(chat_id: int):
     await asyncio.sleep(DELAY_SECONDS)
     lang = await get_lang(chat_id)
@@ -364,6 +377,11 @@ async def send_tariffs_later(chat_id: int):
 # ================== ХЕНДЛЕРЫ ==================
 @dp.message(CommandStart())
 async def start_cmd(m: Message):
+    await ensure_user(m.from_user.id)
+    await m.answer(t("ru", "choose_lang"), reply_markup=kb_lang())
+
+@dp.message(Command("lang"))
+async def lang_cmd(m: Message):
     await ensure_user(m.from_user.id)
     await m.answer(t("ru", "choose_lang"), reply_markup=kb_lang())
 
@@ -380,8 +398,6 @@ async def choose_language(c: CallbackQuery):
 @dp.callback_query(F.data == "start")
 async def start_course(c: CallbackQuery):
     await c.answer()
-    lang = await get_lang(c.from_user.id)
-
     await c.message.answer_video(INTRO_VIDEO_ID, protect_content=True)
     asyncio.create_task(send_tariffs_later(c.message.chat.id))
 
@@ -490,7 +506,7 @@ async def admin_no(c: CallbackQuery):
 
     await c.answer(t("ru", "rejected_answer"))
 
-# Команда для оплативших, если потеряли сообщение
+# ===== Материалы =====
 @dp.message(Command("materials"))
 async def materials_cmd(m: Message):
     lang = await get_lang(m.from_user.id)
@@ -510,14 +526,15 @@ async def materials_cmd(m: Message):
 @dp.callback_query(F.data == "reviews")
 async def reviews(c: CallbackQuery):
     lang = await get_lang(c.from_user.id)
+    review_ids = REVIEW_VIDEO_IDS.get(lang, [])
 
-    if not REVIEW_VIDEO_IDS:
+    if not review_ids:
         await c.message.answer(t(lang, "reviews_not_set"), protect_content=True)
         await c.answer()
         return
 
     await c.message.answer(
-        t(lang, "reviews_found", count=len(REVIEW_VIDEO_IDS)),
+        t(lang, "reviews_found", count=len(review_ids)),
         reply_markup=kb_reviews_menu(lang),
         protect_content=True
     )
@@ -526,7 +543,8 @@ async def reviews(c: CallbackQuery):
 @dp.callback_query(F.data.startswith("review_show:"))
 async def review_show(c: CallbackQuery):
     lang = await get_lang(c.from_user.id)
-    total = len(REVIEW_VIDEO_IDS)
+    review_ids = REVIEW_VIDEO_IDS.get(lang, [])
+    total = len(review_ids)
 
     if total == 0:
         await c.message.answer(t(lang, "reviews_not_set"), protect_content=True)
@@ -544,7 +562,7 @@ async def review_show(c: CallbackQuery):
     await c.answer()
 
     await c.message.answer_video(
-        video=REVIEW_VIDEO_IDS[idx],
+        video=review_ids[idx],
         caption=t(lang, "review_caption", num=idx + 1, total=total),
         reply_markup=kb_review_nav(lang, idx, total),
         protect_content=True
