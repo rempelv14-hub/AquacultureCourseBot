@@ -32,7 +32,7 @@ MATERIALS_LINK = "https://disk.yandex.com/d/Yyum24diLez7Zw"
 # ================== VIDEO file_id ==================
 INTRO_VIDEO_IDS = {
     "ru": "BAACAgIAAxkBAANpaaRSWp8aOkE3mcivVcQDJ9hEAAECAAIOkgACuEEgSZZk99fCbt-oOgQ",
-    "kz": "BAACAgIAAxkBAAMIaa2U2bt-8o4tvui_STKf7YXgRqAAAtaeAAJve3FJCIeh4RTx85w6BA",
+    "kz": "BAACAgIAAxkBAAMKaa2Z7JcJeszjY8sFuMyG1M9DjkUAAgGfAAJve3FJ1zKXTiMPhZ06BA",
 }
 
 REVIEW_VIDEO_IDS = {
@@ -638,3 +638,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
