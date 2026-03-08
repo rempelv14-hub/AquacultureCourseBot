@@ -24,22 +24,33 @@ async def start(m: Message):
 @dp.message(F.video)
 async def get_video_id(m: Message):
     file_id = m.video.file_id
+
+    print("VIDEO file_id:", file_id)
+
     await m.answer(
         f"🎬 VIDEO file_id:\n<code>{file_id}</code>"
     )
 
 
-# Если это файл (например mov)
+# Если это файл
 @dp.message(F.document)
 async def get_document_id(m: Message):
     file_id = m.document.file_id
+
+    print("DOCUMENT file_id:", file_id)
+
     await m.answer(
         f"📁 DOCUMENT file_id:\n<code>{file_id}</code>"
     )
 
 
 async def main():
+
+    # убираем вебхук чтобы не было конфликтов
+    await bot.delete_webhook(drop_pending_updates=True)
+
     print("Бот запущен. Отправь файл...")
+
     await dp.start_polling(bot)
 
 
