@@ -428,14 +428,24 @@ async def start_course(c: CallbackQuery):
     logging.info("START user_id=%s lang=%s intro_id=%s", user_id, lang, intro_video)
 
     try:
-        await c.message.answer_video(video=intro_video, protect_content=True)
-    except TelegramBadRequest:
+        await bot.send_video(
+            chat_id=chat_id,
+            video=intro_video,
+            protect_content=True
+        )
+    except TelegramBadRequest as e:
         logging.exception("Ошибка интро user_id=%s lang=%s", user_id, lang)
-        await c.message.answer(t(lang, "intro_fail"), protect_content=True)
+        await c.message.answer(
+            f"{t(lang, 'intro_fail')}\n\n<code>{e}</code>",
+            protect_content=True
+        )
         return
-    except Exception:
+    except Exception as e:
         logging.exception("Неожиданная ошибка интро user_id=%s lang=%s", user_id, lang)
-        await c.message.answer(t(lang, "intro_fail"), protect_content=True)
+        await c.message.answer(
+            f"{t(lang, 'intro_fail')}\n\n<code>{e}</code>",
+            protect_content=True
+        )
         return
 
     old_task = START_TASKS.get(chat_id)
@@ -621,7 +631,8 @@ async def review_show(c: CallbackQuery):
         idx = 0
 
     await c.answer()
-    await c.message.answer_video(
+    await bot.send_video(
+        chat_id=c.message.chat.id,
         video=review_ids[idx],
         caption=t(lang, "review_caption", num=idx + 1, total=total),
         reply_markup=kb_review_nav(lang, idx, total),
@@ -638,5 +649,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
-
