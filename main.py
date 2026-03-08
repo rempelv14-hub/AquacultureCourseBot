@@ -25,7 +25,7 @@ MATERIALS_LINK = "https://disk.yandex.com/d/Yyum24diLez7Zw"
 # ================== VIDEO file_id ==================
 INTRO_VIDEO_IDS = {
     "ru": "BAACAgIAAxkBAANpaaRSWp8aOkE3mcivVcQDJ9hEAAECAAIOkgACuEEgSZZk99fCbt-oOgQ",
-    "kz": "BAACAgIAAxkBAAMCaa2Iy-TBSvMDtAGTlyuvIk9bDGgAAh-eAAJve3FJ9Pp8kAauHyI6BA",
+    "kz": "BAACAgIAAxkBAAMEaa2RT55vhCMSmWoLu0AgVASSZs8AApeeAAJve3FJiZWZnSNLbTM6BA",
 }
 
 REVIEW_VIDEO_IDS = {
@@ -403,7 +403,13 @@ async def start_course(c: CallbackQuery):
     await c.answer()
     lang = await get_lang(c.from_user.id)
     intro_video = INTRO_VIDEO_IDS.get(lang, INTRO_VIDEO_IDS["ru"])
-    await c.message.answer_video(intro_video, protect_content=True)
+
+    try:
+        await c.message.answer_video(video=intro_video, protect_content=True)
+    except Exception as e:
+        print(f"Ошибка отправки интро: {e}")
+        await c.message.answer_video(video=INTRO_VIDEO_IDS["ru"], protect_content=True)
+
     asyncio.create_task(send_tariffs_later(c.message.chat.id))
 
 @dp.callback_query(F.data == "back_tariffs")
