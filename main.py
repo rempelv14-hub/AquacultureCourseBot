@@ -1,6 +1,7 @@
 import os
 import asyncio
 import sqlite3
+import logging
 from datetime import datetime
 
 from aiogram import Bot, Dispatcher, F
@@ -8,6 +9,13 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, CallbackQuery
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from aiogram.client.default import DefaultBotProperties
+from aiogram.exceptions import TelegramBadRequest
+
+# ================== ЛОГИ ==================
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s"
+)
 
 # ================== НАСТРОЙКИ ==================
 BOT_TOKEN = os.getenv("BOT_TOKEN") or "PASTE_YOUR_BOT_TOKEN_HERE"
@@ -15,7 +23,6 @@ if not BOT_TOKEN or BOT_TOKEN == "PASTE_YOUR_BOT_TOKEN_HERE":
     raise RuntimeError("BOT_TOKEN не задан. Вставь токен в код или передай через переменную окружения BOT_TOKEN.")
 
 ADMIN_TG_ID = 632308904
-
 DELAY_SECONDS = 2 * 60
 DB_PATH = "bot.db"
 
@@ -48,9 +55,9 @@ REVIEW_VIDEO_IDS = {
     ]
 }
 
-# ================== DB (SQLite) ==================
+# ================== DB ==================
 DB_LOCK = asyncio.Lock()
-START_LOCKS: dict[int, asyncio.Task] = {}
+START_TASKS: dict[int, asyncio.Task] = {}
 
 
 def _connect():
@@ -71,13 +78,15 @@ def db_init():
             is_paid INTEGER,
             paid_at TEXT,
             lang TEXT DEFAULT 'ru'
-        )""")
+        )
+        """)
 
         cur.execute("""
         CREATE TABLE IF NOT EXISTS pending (
             user_id INTEGER PRIMARY KEY,
             plan TEXT
-        )""")
+        )
+        """)
 
         try:
             cur.execute("ALTER TABLE users ADD COLUMN lang TEXT DEFAULT 'ru'")
@@ -105,7 +114,7 @@ async def set_lang(user_id: int, lang: str):
             con.commit()
 
 
-async def get_lang(user_id: int):
+async def get_lang(user_id: int) -> str:
     async with DB_LOCK:
         with _connect() as con:
             row = con.execute("SELECT lang FROM users WHERE user_id=?", (user_id,)).fetchone()
@@ -118,7 +127,7 @@ async def set_pending(user_id: int, plan: str):
     await ensure_user(user_id)
     async with DB_LOCK:
         with _connect() as con:
-            con.execute("REPLACE INTO pending VALUES (?,?)", (user_id, plan))
+            con.execute("REPLACE INTO pending VALUES (?, ?)", (user_id, plan))
             con.commit()
 
 
@@ -140,14 +149,11 @@ async def grant_access(user_id: int, plan: str):
     await ensure_user(user_id)
     async with DB_LOCK:
         with _connect() as con:
-            current_lang = con.execute(
-                "SELECT lang FROM users WHERE user_id=?",
-                (user_id,)
-            ).fetchone()
+            current_lang = con.execute("SELECT lang FROM users WHERE user_id=?", (user_id,)).fetchone()
             lang = current_lang[0] if current_lang and current_lang[0] else "ru"
 
             con.execute(
-                "REPLACE INTO users (user_id, plan, is_paid, paid_at, lang) VALUES (?,?,?,?,?)",
+                "REPLACE INTO users (user_id, plan, is_paid, paid_at, lang) VALUES (?, ?, ?, ?, ?)",
                 (user_id, plan, 1, datetime.now().isoformat(), lang)
             )
             con.execute("DELETE FROM pending WHERE user_id=?", (user_id,))
@@ -162,8 +168,7 @@ async def get_access(user_id: int):
                 return None, 0
             return row[0], row[1]
 
-
-# ================== ЛОКАЛИЗАЦИЯ ==================
+# ================== ТЕКСТЫ ==================
 TEXTS = {
     "ru": {
         "choose_lang": "🌐 Выберите язык / Тілді таңдаңыз",
@@ -203,35 +208,25 @@ TEXTS = {
         "i_paid_btn": "✅ Я оплатил",
         "send_check": "📎 Отправьте чек (фото или файл)",
         "check_sent": "⏳ Чек отправлен админу. Ожидайте подтверждения.",
-        "materials_locked": (
-            "🔒 **Материалы закрыты**\n\n"
-            "Доступ откроется после оплаты и подтверждения чека администратором."
-        ),
+        "materials_locked": "🔒 Материалы закрыты.\n\nДоступ откроется после оплаты и подтверждения чека администратором.",
         "materials_btn": "📚 Материалы курса",
-        "payment_confirmed": (
-            "✅ **Оплата подтверждена!**\n\n"
-            "Ниже кнопка для доступа к материалам курса 👇"
-        ),
+        "payment_confirmed": "✅ Оплата подтверждена!\n\nНиже кнопка для доступа к материалам курса 👇",
         "payment_rejected": "❌ Оплата отклонена. Свяжитесь с поддержкой.",
         "materials_msg": "📚 Материалы курса по кнопке ниже:",
-        "reviews_found": "⭐ Найдено отзывов: **{count}**",
+        "reviews_found": "⭐ Найдено отзывов: {count}",
         "show_reviews_btn": "▶️ Показать отзывы",
         "back_tariffs_btn": "⬅️ Назад к тарифам",
         "next_review_btn": "▶️ Следующий отзыв",
-        "review_caption": "⭐ **Отзыв {num} из {total}**",
+        "review_caption": "⭐ Отзыв {num} из {total}",
         "reviews_not_set": "⚠️ Отзывы не настроены.",
-        "admin_caption": (
-            "🧾 Чек на проверку\n\n"
-            "Пользователь: {full_name}\n"
-            "ID: {user_id}\n"
-            "Тариф: {plan}"
-        ),
+        "admin_caption": "🧾 Чек на проверку\n\nПользователь: {full_name}\nID: {user_id}\nТариф: {plan}",
         "admin_ok_btn": "✅ Подтвердить",
         "admin_no_btn": "❌ Отклонить",
         "approved_answer": "Подтверждено",
         "rejected_answer": "Отклонено",
         "plan_basic": "Базовый",
         "plan_premium": "Премиум",
+        "intro_fail": "Не удалось отправить интро. Проверьте file_id для выбранного языка.",
     },
     "kz": {
         "choose_lang": "🌐 Выберите язык / Тілді таңдаңыз",
@@ -263,43 +258,33 @@ TEXTS = {
         "reviews_btn": "⭐ Пікірлер",
         "support_btn": "🛟 Қолдау",
         "payment": (
-            "💳 **Kaspi арқылы төлем**\n\n"
-            "Алушы: **YERLAN KEGENOV**\n"
-            "Карта нөмірі: **4400 4302 0609 7443**\n\n"
-            "Төлем жасағаннан кейін **«Мен төледім»** батырмасын басып, чекті жіберіңіз."
+            "💳 Kaspi арқылы төлем\n\n"
+            "Алушы: YERLAN KEGENOV\n"
+            "Карта нөмірі: 4400 4302 0609 7443\n\n"
+            "Төлем жасағаннан кейін «Мен төледім» батырмасын басып, чекті жіберіңіз."
         ),
         "i_paid_btn": "✅ Мен төледім",
         "send_check": "📎 Чекті жіберіңіз (фото немесе файл)",
         "check_sent": "⏳ Чек әкімшіге жіберілді. Растауды күтіңіз.",
-        "materials_locked": (
-            "🔒 **Материалдар жабық**\n\n"
-            "Қолжетімділік төлем жасалып, әкімші чек растағаннан кейін ашылады."
-        ),
+        "materials_locked": "🔒 Материалдар жабық.\n\nҚолжетімділік төлем жасалып, әкімші чек растағаннан кейін ашылады.",
         "materials_btn": "📚 Курс материалдары",
-        "payment_confirmed": (
-            "✅ **Төлем расталды!**\n\n"
-            "Төменде курс материалдарына кіру батырмасы берілген 👇"
-        ),
+        "payment_confirmed": "✅ Төлем расталды!\n\nТөменде курс материалдарына кіру батырмасы берілген 👇",
         "payment_rejected": "❌ Төлем қабылданбады. Қолдау қызметіне хабарласыңыз.",
         "materials_msg": "📚 Курс материалдары төмендегі батырмада:",
-        "reviews_found": "⭐ Табылған пікірлер саны: **{count}**",
+        "reviews_found": "⭐ Табылған пікірлер саны: {count}",
         "show_reviews_btn": "▶️ Пікірлерді көрсету",
         "back_tariffs_btn": "⬅️ Тарифтерге қайту",
         "next_review_btn": "▶️ Келесі пікір",
-        "review_caption": "⭐ **Пікір {num} / {total}**",
+        "review_caption": "⭐ Пікір {num} / {total}",
         "reviews_not_set": "⚠️ Пікірлер бапталмаған.",
-        "admin_caption": (
-            "🧾 Тексеруге чек\n\n"
-            "Пайдаланушы: {full_name}\n"
-            "ID: {user_id}\n"
-            "Тариф: {plan}"
-        ),
+        "admin_caption": "🧾 Тексеруге чек\n\nПайдаланушы: {full_name}\nID: {user_id}\nТариф: {plan}",
         "admin_ok_btn": "✅ Растау",
         "admin_no_btn": "❌ Қабылдамау",
         "approved_answer": "Расталды",
         "rejected_answer": "Қабылданбады",
         "plan_basic": "Базалық",
         "plan_premium": "Премиум",
+        "intro_fail": "Интро жіберілмеді. Таңдалған тіл үшін file_id тексеріңіз.",
     }
 }
 
@@ -307,9 +292,7 @@ TEXTS = {
 def t(lang: str, key: str, **kwargs):
     lang = lang if lang in TEXTS else "ru"
     text = TEXTS[lang][key]
-    if kwargs:
-        return text.format(**kwargs)
-    return text
+    return text.format(**kwargs) if kwargs else text
 
 
 def plan_label(lang: str, plan: str):
@@ -318,7 +301,6 @@ def plan_label(lang: str, plan: str):
     if plan == "premium":
         return t(lang, "plan_premium")
     return plan
-
 
 # ================== КНОПКИ ==================
 def kb_lang():
@@ -386,11 +368,9 @@ def kb_review_nav(lang: str, i: int, total: int):
     kb.adjust(1)
     return kb.as_markup()
 
-
 # ================== БОТ ==================
-bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode="Markdown"))
+bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode="HTML"))
 dp = Dispatcher()
-
 
 # ================== ФОН ==================
 async def send_tariffs_later(chat_id: int):
@@ -399,9 +379,11 @@ async def send_tariffs_later(chat_id: int):
         lang = await get_lang(chat_id)
         await bot.send_message(chat_id, t(lang, "before_tariffs"), protect_content=True)
         await bot.send_message(chat_id, t(lang, "tariffs"), reply_markup=kb_tariffs(lang), protect_content=True)
+    except asyncio.CancelledError:
+        logging.info("Отложенная отправка тарифов отменена для chat_id=%s", chat_id)
+        raise
     finally:
-        START_LOCKS.pop(chat_id, None)
-
+        START_TASKS.pop(chat_id, None)
 
 # ================== ХЕНДЛЕРЫ ==================
 @dp.message(CommandStart())
@@ -423,48 +405,76 @@ async def choose_language(c: CallbackQuery):
         lang = "ru"
 
     await set_lang(c.from_user.id, lang)
-    await c.message.answer(t(lang, "welcome"), reply_markup=kb_start(lang), protect_content=True)
+    saved_lang = await get_lang(c.from_user.id)
+    logging.info("Пользователь %s выбрал язык %s", c.from_user.id, saved_lang)
+
+    await c.message.answer(
+        t(saved_lang, "welcome"),
+        reply_markup=kb_start(saved_lang),
+        protect_content=True
+    )
     await c.answer()
 
 
 @dp.callback_query(F.data == "start")
 async def start_course(c: CallbackQuery):
     await c.answer()
-    lang = await get_lang(c.from_user.id)
+
+    user_id = c.from_user.id
+    chat_id = c.message.chat.id
+    lang = await get_lang(user_id)
     intro_video = INTRO_VIDEO_IDS.get(lang, INTRO_VIDEO_IDS["ru"])
+
+    logging.info("START user_id=%s lang=%s intro_id=%s", user_id, lang, intro_video)
 
     try:
         await c.message.answer_video(video=intro_video, protect_content=True)
-    except Exception as e:
-        print(f"Ошибка отправки интро: {e}")
-        await c.message.answer_video(video=INTRO_VIDEO_IDS["ru"], protect_content=True)
+    except TelegramBadRequest as e:
+        logging.exception("Ошибка интро user_id=%s lang=%s", user_id)
+        await c.message.answer(t(lang, "intro_fail"), protect_content=True)
+        return
+    except Exception:
+        logging.exception("Неожиданная ошибка интро user_id=%s lang=%s", user_id, lang)
+        await c.message.answer(t(lang, "intro_fail"), protect_content=True)
+        return
 
-    old_task = START_LOCKS.get(c.message.chat.id)
+    old_task = START_TASKS.get(chat_id)
     if old_task and not old_task.done():
         old_task.cancel()
 
-    START_LOCKS[c.message.chat.id] = asyncio.create_task(send_tariffs_later(c.message.chat.id))
+    START_TASKS[chat_id] = asyncio.create_task(send_tariffs_later(chat_id))
 
 
 @dp.callback_query(F.data == "back_tariffs")
 async def back_tariffs(c: CallbackQuery):
     lang = await get_lang(c.from_user.id)
-    await c.message.answer(t(lang, "tariffs"), reply_markup=kb_tariffs(lang), protect_content=True)
+    await c.message.answer(
+        t(lang, "tariffs"),
+        reply_markup=kb_tariffs(lang),
+        protect_content=True
+    )
     await c.answer()
 
 
-# ===== Оплата =====
 @dp.callback_query(F.data == "pay_basic")
 async def pay_basic(c: CallbackQuery):
     lang = await get_lang(c.from_user.id)
-    await c.message.answer(t(lang, "payment"), reply_markup=kb_payment(lang, "basic"), protect_content=True)
+    await c.message.answer(
+        t(lang, "payment"),
+        reply_markup=kb_payment(lang, "basic"),
+        protect_content=True
+    )
     await c.answer()
 
 
 @dp.callback_query(F.data == "pay_premium")
 async def pay_premium(c: CallbackQuery):
     lang = await get_lang(c.from_user.id)
-    await c.message.answer(t(lang, "payment"), reply_markup=kb_payment(lang, "premium"), protect_content=True)
+    await c.message.answer(
+        t(lang, "payment"),
+        reply_markup=kb_payment(lang, "premium"),
+        protect_content=True
+    )
     await c.answer()
 
 
@@ -484,7 +494,6 @@ async def receive_check(m: Message):
         return
 
     user_lang = await get_lang(m.from_user.id)
-
     caption = t(
         user_lang,
         "admin_caption",
@@ -558,7 +567,6 @@ async def admin_no(c: CallbackQuery):
     await c.answer(t("ru", "rejected_answer"))
 
 
-# ===== Материалы =====
 @dp.message(Command("materials"))
 async def materials_cmd(m: Message):
     lang = await get_lang(m.from_user.id)
@@ -575,7 +583,6 @@ async def materials_cmd(m: Message):
     )
 
 
-# ===== Отзывы =====
 @dp.callback_query(F.data == "reviews")
 async def reviews(c: CallbackQuery):
     lang = await get_lang(c.from_user.id)
@@ -614,7 +621,6 @@ async def review_show(c: CallbackQuery):
         idx = 0
 
     await c.answer()
-
     await c.message.answer_video(
         video=review_ids[idx],
         caption=t(lang, "review_caption", num=idx + 1, total=total),
@@ -622,11 +628,11 @@ async def review_show(c: CallbackQuery):
         protect_content=True
     )
 
-
 # ================== ЗАПУСК ==================
 async def main():
     db_init()
     await bot.delete_webhook(drop_pending_updates=True)
+    logging.info("Бот запущен")
     await dp.start_polling(bot)
 
 
