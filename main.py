@@ -23,7 +23,10 @@ SUPPORT_WA_LINK = "https://wa.me/77072102513"
 MATERIALS_LINK = "https://disk.yandex.com/d/Yyum24diLez7Zw"
 
 # ================== VIDEO file_id ==================
-INTRO_VIDEO_ID = "BAACAgIAAxkBAANpaaRSWp8aOkE3mcivVcQDJ9hEAAECAAIOkgACuEEgSZZk99fCbt-oOgQ"
+INTRO_VIDEO_IDS = {
+    "ru": "BAACAgIAAxkBAANpaaRSWp8aOkE3mcivVcQDJ9hEAAECAAIOkgACuEEgSZZk99fCbt-oOgQ",
+    "kz": "BAACAgIAAxkBAAMCaa2Iy-TBSvMDtAGTlyuvIk9bDGgAAh-eAAJve3FJ9Pp8kAauHyI6BA",
+}
 
 REVIEW_VIDEO_IDS = {
     "ru": [
@@ -398,7 +401,9 @@ async def choose_language(c: CallbackQuery):
 @dp.callback_query(F.data == "start")
 async def start_course(c: CallbackQuery):
     await c.answer()
-    await c.message.answer_video(INTRO_VIDEO_ID, protect_content=True)
+    lang = await get_lang(c.from_user.id)
+    intro_video = INTRO_VIDEO_IDS.get(lang, INTRO_VIDEO_IDS["ru"])
+    await c.message.answer_video(intro_video, protect_content=True)
     asyncio.create_task(send_tariffs_later(c.message.chat.id))
 
 @dp.callback_query(F.data == "back_tariffs")
