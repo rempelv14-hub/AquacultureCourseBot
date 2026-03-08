@@ -200,10 +200,10 @@ TEXTS = {
         "reviews_btn": "⭐ Отзывы",
         "support_btn": "🛟 Поддержка",
         "payment": (
-            "💳 **Оплата Kaspi**\n\n"
-            "Получатель: **YERLAN KEGENOV**\n"
-            "Номер карты: **4400 4302 0609 7443**\n\n"
-            "После оплаты нажмите **«Я оплатил»** и отправьте чек."
+            "💳 <b>Оплата Kaspi</b>\n\n"
+            "Получатель: <b>YERLAN KEGENOV</b>\n"
+            "Номер карты: <b>4400 4302 0609 7443</b>\n\n"
+            "После оплаты нажмите <b>«Я оплатил»</b> и отправьте чек."
         ),
         "i_paid_btn": "✅ Я оплатил",
         "send_check": "📎 Отправьте чек (фото или файл)",
@@ -258,10 +258,10 @@ TEXTS = {
         "reviews_btn": "⭐ Пікірлер",
         "support_btn": "🛟 Қолдау",
         "payment": (
-            "💳 Kaspi арқылы төлем\n\n"
-            "Алушы: YERLAN KEGENOV\n"
-            "Карта нөмірі: 4400 4302 0609 7443\n\n"
-            "Төлем жасағаннан кейін «Мен төледім» батырмасын басып, чекті жіберіңіз."
+            "💳 <b>Kaspi арқылы төлем</b>\n\n"
+            "Алушы: <b>YERLAN KEGENOV</b>\n"
+            "Карта нөмірі: <b>4400 4302 0609 7443</b>\n\n"
+            "Төлем жасағаннан кейін <b>«Мен төледім»</b> батырмасын басып, чекті жіберіңіз."
         ),
         "i_paid_btn": "✅ Мен төледім",
         "send_check": "📎 Чекті жіберіңіз (фото немесе файл)",
@@ -429,8 +429,8 @@ async def start_course(c: CallbackQuery):
 
     try:
         await c.message.answer_video(video=intro_video, protect_content=True)
-    except TelegramBadRequest as e:
-        logging.exception("Ошибка интро user_id=%s lang=%s", user_id)
+    except TelegramBadRequest:
+        logging.exception("Ошибка интро user_id=%s lang=%s", user_id, lang)
         await c.message.answer(t(lang, "intro_fail"), protect_content=True)
         return
     except Exception:
@@ -638,4 +638,3 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
