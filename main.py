@@ -25,7 +25,7 @@ MATERIALS_LINK = "https://disk.yandex.com/d/Yyum24diLez7Zw"
 # ================== VIDEO file_id ==================
 INTRO_VIDEO_IDS = {
     "ru": "BAACAgIAAxkBAANpaaRSWp8aOkE3mcivVcQDJ9hEAAECAAIOkgACuEEgSZZk99fCbt-oOgQ",
-    "kz": "BAACAgIAAxkBAAMEaa2RT55vhCMSmWoLu0AgVASSZs8AApeeAAJve3FJiZWZnSNLbTM6BA",
+    "kz": "BAACAgIAAxkBAAMIaa2U2bt-8o4tvui_STKf7YXgRqAAAtaeAAJve3FJCIeh4RTx85w6BA",
 }
 
 REVIEW_VIDEO_IDS = {
@@ -50,12 +50,15 @@ REVIEW_VIDEO_IDS = {
 
 # ================== DB (SQLite) ==================
 DB_LOCK = asyncio.Lock()
+START_LOCKS: dict[int, asyncio.Task] = {}
+
 
 def _connect():
     con = sqlite3.connect(DB_PATH, timeout=30)
     con.execute("PRAGMA journal_mode=WAL;")
     con.execute("PRAGMA synchronous=NORMAL;")
     return con
+
 
 def db_init():
     with _connect() as con:
@@ -83,6 +86,7 @@ def db_init():
 
         con.commit()
 
+
 async def ensure_user(user_id: int):
     async with DB_LOCK:
         with _connect() as con:
@@ -92,12 +96,14 @@ async def ensure_user(user_id: int):
             )
             con.commit()
 
+
 async def set_lang(user_id: int, lang: str):
     await ensure_user(user_id)
     async with DB_LOCK:
         with _connect() as con:
             con.execute("UPDATE users SET lang=? WHERE user_id=?", (lang, user_id))
             con.commit()
+
 
 async def get_lang(user_id: int):
     async with DB_LOCK:
@@ -107,6 +113,7 @@ async def get_lang(user_id: int):
                 return "ru"
             return row[0]
 
+
 async def set_pending(user_id: int, plan: str):
     await ensure_user(user_id)
     async with DB_LOCK:
@@ -114,17 +121,20 @@ async def set_pending(user_id: int, plan: str):
             con.execute("REPLACE INTO pending VALUES (?,?)", (user_id, plan))
             con.commit()
 
+
 async def get_pending(user_id: int):
     async with DB_LOCK:
         with _connect() as con:
             row = con.execute("SELECT plan FROM pending WHERE user_id=?", (user_id,)).fetchone()
             return row[0] if row else None
 
+
 async def clear_pending(user_id: int):
     async with DB_LOCK:
         with _connect() as con:
             con.execute("DELETE FROM pending WHERE user_id=?", (user_id,))
             con.commit()
+
 
 async def grant_access(user_id: int, plan: str):
     await ensure_user(user_id)
@@ -143,6 +153,7 @@ async def grant_access(user_id: int, plan: str):
             con.execute("DELETE FROM pending WHERE user_id=?", (user_id,))
             con.commit()
 
+
 async def get_access(user_id: int):
     async with DB_LOCK:
         with _connect() as con:
@@ -150,6 +161,7 @@ async def get_access(user_id: int):
             if not row:
                 return None, 0
             return row[0], row[1]
+
 
 # ================== ЛОКАЛИЗАЦИЯ ==================
 TEXTS = {
@@ -220,7 +232,6 @@ TEXTS = {
         "rejected_answer": "Отклонено",
         "plan_basic": "Базовый",
         "plan_premium": "Премиум",
-        "lang_btn": "🌐 Сменить язык",
     },
     "kz": {
         "choose_lang": "🌐 Выберите язык / Тілді таңдаңыз",
@@ -289,9 +300,9 @@ TEXTS = {
         "rejected_answer": "Қабылданбады",
         "plan_basic": "Базалық",
         "plan_premium": "Премиум",
-        "lang_btn": "🌐 Тілді өзгерту",
     }
 }
+
 
 def t(lang: str, key: str, **kwargs):
     lang = lang if lang in TEXTS else "ru"
@@ -300,12 +311,14 @@ def t(lang: str, key: str, **kwargs):
         return text.format(**kwargs)
     return text
 
+
 def plan_label(lang: str, plan: str):
     if plan == "basic":
         return t(lang, "plan_basic")
     if plan == "premium":
         return t(lang, "plan_premium")
     return plan
+
 
 # ================== КНОПКИ ==================
 def kb_lang():
@@ -315,11 +328,13 @@ def kb_lang():
     kb.adjust(2)
     return kb.as_markup()
 
+
 def kb_start(lang: str):
     kb = InlineKeyboardBuilder()
     kb.button(text=t(lang, "start_btn"), callback_data="start")
     kb.adjust(1)
     return kb.as_markup()
+
 
 def kb_tariffs(lang: str):
     kb = InlineKeyboardBuilder()
@@ -330,12 +345,14 @@ def kb_tariffs(lang: str):
     kb.adjust(1)
     return kb.as_markup()
 
+
 def kb_payment(lang: str, plan: str):
     kb = InlineKeyboardBuilder()
     kb.button(text=t(lang, "i_paid_btn"), callback_data=f"paid:{plan}")
     kb.button(text=t(lang, "support_btn"), url=SUPPORT_WA_LINK)
     kb.adjust(1)
     return kb.as_markup()
+
 
 def kb_admin(user_id: int, plan: str, lang: str):
     kb = InlineKeyboardBuilder()
@@ -344,6 +361,7 @@ def kb_admin(user_id: int, plan: str, lang: str):
     kb.adjust(2)
     return kb.as_markup()
 
+
 def kb_materials_url(lang: str):
     kb = InlineKeyboardBuilder()
     kb.button(text=t(lang, "materials_btn"), url=MATERIALS_LINK)
@@ -351,12 +369,14 @@ def kb_materials_url(lang: str):
     kb.adjust(1)
     return kb.as_markup()
 
+
 def kb_reviews_menu(lang: str):
     kb = InlineKeyboardBuilder()
     kb.button(text=t(lang, "show_reviews_btn"), callback_data="review_show:0")
     kb.button(text=t(lang, "back_tariffs_btn"), callback_data="back_tariffs")
     kb.adjust(1)
     return kb.as_markup()
+
 
 def kb_review_nav(lang: str, i: int, total: int):
     kb = InlineKeyboardBuilder()
@@ -366,16 +386,22 @@ def kb_review_nav(lang: str, i: int, total: int):
     kb.adjust(1)
     return kb.as_markup()
 
+
 # ================== БОТ ==================
 bot = Bot(token=BOT_TOKEN, default=DefaultBotProperties(parse_mode="Markdown"))
 dp = Dispatcher()
 
+
 # ================== ФОН ==================
 async def send_tariffs_later(chat_id: int):
-    await asyncio.sleep(DELAY_SECONDS)
-    lang = await get_lang(chat_id)
-    await bot.send_message(chat_id, t(lang, "before_tariffs"), protect_content=True)
-    await bot.send_message(chat_id, t(lang, "tariffs"), reply_markup=kb_tariffs(lang), protect_content=True)
+    try:
+        await asyncio.sleep(DELAY_SECONDS)
+        lang = await get_lang(chat_id)
+        await bot.send_message(chat_id, t(lang, "before_tariffs"), protect_content=True)
+        await bot.send_message(chat_id, t(lang, "tariffs"), reply_markup=kb_tariffs(lang), protect_content=True)
+    finally:
+        START_LOCKS.pop(chat_id, None)
+
 
 # ================== ХЕНДЛЕРЫ ==================
 @dp.message(CommandStart())
@@ -383,10 +409,12 @@ async def start_cmd(m: Message):
     await ensure_user(m.from_user.id)
     await m.answer(t("ru", "choose_lang"), reply_markup=kb_lang())
 
+
 @dp.message(Command("lang"))
 async def lang_cmd(m: Message):
     await ensure_user(m.from_user.id)
     await m.answer(t("ru", "choose_lang"), reply_markup=kb_lang())
+
 
 @dp.callback_query(F.data.startswith("lang_"))
 async def choose_language(c: CallbackQuery):
@@ -397,6 +425,7 @@ async def choose_language(c: CallbackQuery):
     await set_lang(c.from_user.id, lang)
     await c.message.answer(t(lang, "welcome"), reply_markup=kb_start(lang), protect_content=True)
     await c.answer()
+
 
 @dp.callback_query(F.data == "start")
 async def start_course(c: CallbackQuery):
@@ -410,13 +439,19 @@ async def start_course(c: CallbackQuery):
         print(f"Ошибка отправки интро: {e}")
         await c.message.answer_video(video=INTRO_VIDEO_IDS["ru"], protect_content=True)
 
-    asyncio.create_task(send_tariffs_later(c.message.chat.id))
+    old_task = START_LOCKS.get(c.message.chat.id)
+    if old_task and not old_task.done():
+        old_task.cancel()
+
+    START_LOCKS[c.message.chat.id] = asyncio.create_task(send_tariffs_later(c.message.chat.id))
+
 
 @dp.callback_query(F.data == "back_tariffs")
 async def back_tariffs(c: CallbackQuery):
     lang = await get_lang(c.from_user.id)
     await c.message.answer(t(lang, "tariffs"), reply_markup=kb_tariffs(lang), protect_content=True)
     await c.answer()
+
 
 # ===== Оплата =====
 @dp.callback_query(F.data == "pay_basic")
@@ -425,11 +460,13 @@ async def pay_basic(c: CallbackQuery):
     await c.message.answer(t(lang, "payment"), reply_markup=kb_payment(lang, "basic"), protect_content=True)
     await c.answer()
 
+
 @dp.callback_query(F.data == "pay_premium")
 async def pay_premium(c: CallbackQuery):
     lang = await get_lang(c.from_user.id)
     await c.message.answer(t(lang, "payment"), reply_markup=kb_payment(lang, "premium"), protect_content=True)
     await c.answer()
+
 
 @dp.callback_query(F.data.startswith("paid:"))
 async def paid(c: CallbackQuery):
@@ -438,6 +475,7 @@ async def paid(c: CallbackQuery):
     await set_pending(c.from_user.id, plan)
     await c.message.answer(t(lang, "send_check"), protect_content=True)
     await c.answer()
+
 
 @dp.message(F.photo | F.document)
 async def receive_check(m: Message):
@@ -474,6 +512,7 @@ async def receive_check(m: Message):
 
     await m.answer(t(user_lang, "check_sent"), protect_content=True)
 
+
 @dp.callback_query(F.data.startswith("ok:"))
 async def admin_ok(c: CallbackQuery):
     if c.from_user.id != ADMIN_TG_ID:
@@ -499,6 +538,7 @@ async def admin_ok(c: CallbackQuery):
 
     await c.answer(t("ru", "approved_answer"))
 
+
 @dp.callback_query(F.data.startswith("no:"))
 async def admin_no(c: CallbackQuery):
     if c.from_user.id != ADMIN_TG_ID:
@@ -517,6 +557,7 @@ async def admin_no(c: CallbackQuery):
 
     await c.answer(t("ru", "rejected_answer"))
 
+
 # ===== Материалы =====
 @dp.message(Command("materials"))
 async def materials_cmd(m: Message):
@@ -532,6 +573,7 @@ async def materials_cmd(m: Message):
         reply_markup=kb_materials_url(lang),
         protect_content=True
     )
+
 
 # ===== Отзывы =====
 @dp.callback_query(F.data == "reviews")
@@ -550,6 +592,7 @@ async def reviews(c: CallbackQuery):
         protect_content=True
     )
     await c.answer()
+
 
 @dp.callback_query(F.data.startswith("review_show:"))
 async def review_show(c: CallbackQuery):
@@ -579,11 +622,13 @@ async def review_show(c: CallbackQuery):
         protect_content=True
     )
 
+
 # ================== ЗАПУСК ==================
 async def main():
     db_init()
     await bot.delete_webhook(drop_pending_updates=True)
     await dp.start_polling(bot)
+
 
 if __name__ == "__main__":
     asyncio.run(main())
