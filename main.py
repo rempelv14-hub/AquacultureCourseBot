@@ -92,9 +92,9 @@ MODULE_VIDEO_IDS = {
             "BAACAgIAAxkBAAIB-mmwRY41_mRkr_yWte31cLRLUxv9AAOeAALfnohJbUBW5gIlT206BA",
         ],
         "module_2": [
-            "BAACAgIAAxkBAAID6Gmy9o4oP44_TRUDK58ccjr0JGAxAAJpjgAC2kOYST7XH_7xk0M2OgQ бассейны",
-            "BAACAgIAAxkBAAID8Gmy-SlDuGbl3ASYEfZ2HPZXTENTAAKEjgAC2kOYSRYJiUxM-TRpOgQ Сатки",
-            "BAACAgIAAxkBAAID7Gmy982nUHeATK5d1mXEiC9DgAxoAAJ0jgAC2kOYSUFWtByHqfxGOgQ узв",
+            "BAACAgIAAxkBAAID6Gmy9o4oP44_TRUDK58ccjr0JGAxAAJpjgAC2kOYST7XH_7xk0M2OgQ",
+            "BAACAgIAAxkBAAID8Gmy-SlDuGbl3ASYEfZ2HPZXTENTAAKEjgAC2kOYSRYJiUxM-TRpOgQ ",
+            "BAACAgIAAxkBAAID7Gmy982nUHeATK5d1mXEiC9DgAxoAAJ0jgAC2kOYSUFWtByHqfxGOgQ ",
         ],
         "module_3": [
             "BAACAgIAAxkBAAID8mmy-4Wzvy1fyPKmOYcxlTNrM3XIAAKSjgAC2kOYSSMWX31UsycvOgQ",
@@ -831,4 +831,5 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
+
 
