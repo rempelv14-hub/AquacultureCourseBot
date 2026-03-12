@@ -36,8 +36,8 @@ INTRO_VIDEO_IDS = {
 
 REVIEW_VIDEO_IDS = {
     "ru": [
-        "BAACAgIAAxkBAAN1aaRTG8n4WCTld4QhNf4nBtm6c3kAAiCSAAK4QSBJwJLxdJEE2VU6BA",
         "BAACAgIAAxkBAAN3aaRTMrIxxmDfUV4fDtcL_WqA7VgAAieSAAK4QSBJ0AABt8XJic8LOgQ",
+        "BAACAgIAAxkBAAN1aaRTG8n4WCTld4QhNf4nBtm6c3kAAiCSAAK4QSBJwJLxdJEE2VU6BA",
         "BAACAgIAAxkBAAN5aaRTTEpDNNK9RHRJEiRaiu0zX3UAAiuSAAK4QSBJpfcnXUqCPF86BA",
         "BAACAgIAAxkBAAN7aaRTZC-mV7sEgpsyZohoK9BV4KkAAi-SAAK4QSBJlk-ilX5qJ6s6BA",
         "BAACAgIAAxkBAAN9aaRT3HldPJ1gSpveLSmQ06d1nYAAAkSSAAK4QSBJ4Own9SEfFsY6BA",
@@ -65,7 +65,7 @@ MODULE_VIDEO_IDS = {
         ],
         "module_2": [
             "BAACAgIAAxkBAAICQWmwaq5pBxYBbuuJDuB5LfYg_iJtAAJjoAAC356ISf_9HOwEW9BMOgQ",
-            "BAACAgIAAxkBAAICQ2mwatE9OSLXP2nZiC5KhMkWv99XAAJooAAC356ISbkUL0hUmqorOgQ",
+            "BAACAgIAAxkBAAID6mmy92sEXWJd3wxj2SFwt-0DKk1ZAAJvjgAC2kOYSZS-VEkeZLlPOgQ",
             "BAACAgIAAxkBAAICRWmwau7nVaBT67G7NtrEEtRGjBg4AAJuoAAC356IScWl85yxPswXOgQ",
             "BAACAgIAAxkBAAICSWmwa594MnTO-gb4Y0aUc5QT1P1iAAKSoAAC356ISb2_P2ehh1gwOgQ",
         ],
@@ -83,7 +83,7 @@ MODULE_VIDEO_IDS = {
             "BAACAgIAAxkBAAICWWmwbjn5ZaE6_B7Qd-s_iPziCU9-AALYoAAC356ISSKUoLar80vcOgQ",
             "BAACAgIAAxkBAAICW2mwbnn9VhpTYAp6EHwEIQfUbYPMAALboAAC356ISYzfuVObww-eOgQ",
             "BAACAgIAAxkBAAICXWmwboeEOgabha_g36hKvGAfH2AYAALcoAAC356ISQ-_HMr5N8l1OgQ",
-            "BAACAgIAAxkBAAICX2mwbqxRZKjpIfGYHSzfZ2WRFaLrAALfoAAC356ISf9xOvyw_MPAOgQ",
+            "BAACAgIAAxkBAAID5Gmy500mz6HAM0oQRjSdNmtgn5ROAAIqiwAC2kOQSe3SqNYPMa5mOgQ",
         ],
     },
     "kz": {
@@ -92,25 +92,27 @@ MODULE_VIDEO_IDS = {
             "BAACAgIAAxkBAAIB-mmwRY41_mRkr_yWte31cLRLUxv9AAOeAALfnohJbUBW5gIlT206BA",
         ],
         "module_2": [
-            "BAACAgIAAxkBAAIB_mmwRssAASUXiCc9dJn3YtBnv3yvqwACGJ4AAt-eiEnI3zJXGgPyDjoE",
-            "BAACAgIAAxkBAAICAAFpsEcpUGa6niuGzWVw48ElF89yewACHp4AAt-eiEkWJ9w1XAQAAdY6BA",
+            "BAACAgIAAxkBAAID6Gmy9o4oP44_TRUDK58ccjr0JGAxAAJpjgAC2kOYST7XH_7xk0M2OgQ бассейны",
+            "BAACAgIAAxkBAAID8Gmy-SlDuGbl3ASYEfZ2HPZXTENTAAKEjgAC2kOYSRYJiUxM-TRpOgQ Сатки",
+            "BAACAgIAAxkBAAID7Gmy982nUHeATK5d1mXEiC9DgAxoAAJ0jgAC2kOYSUFWtByHqfxGOgQ узв",
         ],
         "module_3": [
-            "BAACAgIAAxkBAAICBGmwSfXI2a-bjBqsadGOp0sUfEMqAAJWngAC356ISYGzahmpBrnSOgQ",
-            "BAACAgIAAxkBAAICDGmwTFNVUyD2JN_jnJ6TUOYRPthIAAJ8ngAC356ISQ-7DK7V6-yPOgQ",
-            "BAACAgIAAxkBAAICDmmwTVIyhD96YvEwPJXm7l0x67SRAAKGngAC356ISbIMOnr9Fw5NOgQ",
+            "BAACAgIAAxkBAAID8mmy-4Wzvy1fyPKmOYcxlTNrM3XIAAKSjgAC2kOYSSMWX31UsycvOgQ",
+            "BAACAgIAAxkBAAID9Gmy_Jr47hTgIT-JquSRnuSeKdWJAAKojgAC2kOYSYyGmTCTtPACOgQ",
+
         ],
         "module_4": [
             "BAACAgIAAxkBAAICEGmwT5FGsLS9jylOCmxympEPePeMAAKcngAC356ISdm1z1rMBh59OgQ",
             "BAACAgIAAxkBAAICFmmwUOVMETRXKZnbwfjg-GwdnZv6AAKsngAC356ISVOz9G0tL1D5OgQ",
-            "BAACAgIAAxkBAAICHmmwUvJe5RFPRZ7hxCokf1bUgUqKAALDngAC356ISVqzBp4VBR40OgQ",
+
         ],
         "module_5": [
             "BAACAgIAAxkBAAICIWmwVEFhgm0ZZU1oLzpyiGdXjmnsAALWngAC356ISfXCjIs23bPKOgQ",
             "BAACAgIAAxkBAAICI2mwVdj3rC5vr0FYsr2ca7I6-N3OAALxngAC356ISTbIV-k6jC4fOgQ",
             "BAACAgIAAxkBAAICKGmwVwMWNU2Su9_r3--9kePX3eyxAAIBnwAC356ISRMZyhAVVh04OgQ",
             "BAACAgIAAxkBAAICKmmwV593jJg7x7T6axtKpaHPDo-FAAIHnwAC356ISdUgdsvRWp5KOgQ",
-            "BAACAgIAAxkBAAICLmmwWMaHPA8MrixhElf9QrcPBOgcAAITnwAC356ISfUNbjiv2niHOgQ",
+            "BAACAgIAAxkBAAICLmmwWMaHPA8MrixhElf9QrcPBOgcAAITnwAC356ISfUNbjiv2niHOgQ"
+            "BAACAgIAAxkBAAID4mmy5qWoXGJForS1NPouS2voO8QzAAIiiwAC2kOQSSHht26rSatPOgQ",
         ],
     }
 }
@@ -829,5 +831,4 @@ async def main():
 
 if __name__ == "__main__":
     asyncio.run(main())
-
 
