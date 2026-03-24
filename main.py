@@ -430,8 +430,6 @@ TEXTS = {
     "intro_fail": "Қате",
     "module_not_set": "⚠️ Модуль жоқ",
 }
-    
-}
 
 def t(lang: str, key: str, **kwargs):
     lang = lang if lang in TEXTS else "ru"
