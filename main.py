@@ -329,63 +329,91 @@ TEXTS = {
     },
 
     "kz": {
-        "choose_lang": "🌐 Выберите язык / Тілді таңдаңыз",
-        "welcome": "Сәлеметсіз бе! 👋",
-        "start_btn": "🚀 Бастау",
-        "before_tariffs": "Тарифтермен танысыңыз",
+    "choose_lang": "🌐 Выберите язык / Тілді таңдаңыз",
+    "welcome": "Сәлеметсіз бе! 👋",
+    "start_btn": "🚀 Бастау",
+    "before_tariffs": "Тарифтермен танысыңыз",
 
-        "tariffs": (
-            "🔥 <b>АКЦИЯ</b>\n\n"
-            "Тариф 1: Премиум\n"
-            "250 000 → 150 000\n\n"
-            "Тариф 2: Базалық\n"
-            "150 000 → 105 000"
-        ),
+    "tariffs": (
+        "🔥 <b>АКЦИЯ ШЕКТЕУЛІ</b>\n"
+        "⏳ Жеңілдік тек қазір қолжетімді\n\n"
 
-        "pay_basic_btn": "💳 Базалық",
-        "pay_premium_btn": "💳 Премиум",
-        "reviews_btn": "⭐ Пікірлер",
-        "support_btn": "🛟 Қолдау",
+        "Тариф 1: «Премиум сүйемелдеу»\n"
+        "❌ 250 000 тг\n"
+        "✅ <b>150 000 тг (40% жеңілдік)</b>\n\n"
 
-        "payment": "Kaspi төлем",
+        "Бұл тарифке мыналар кіреді:\n"
+        "✅ Бейне курстарға қолжетімділік (барлық оқу базасы).\n"
+        "✅ 6 ай толық сүйемелдеу.\n"
+        "✅ 6 ай ішінде клиент бизнес бойынша кез келген сұрақпен хабарласа алады.\n"
+        "✅ Чат арқылы қолдау.\n"
+        "✅ Аптасына 1 рет бейне қоңырау.\n\n"
 
-        "i_paid_btn": "✅ Төледім",
-        "send_check": "Чек жіберіңіз",
-        "check_sent": "Жіберілді",
-        "materials_locked": "Жабық",
-        "modules_btn": "📚 Модульдер",
-        "payment_confirmed": "Расталды",
-        "payment_rejected": "Қабылданбады",
-        "modules_msg": "Модуль таңдаңыз",
+        "━━━━━━━━━━━━━━━━━━━━━━\n\n"
 
-        "module_1_btn": "1 модуль",
-        "module_2_btn": "2 модуль",
-        "module_3_btn": "3 модуль",
-        "module_4_btn": "4 модуль",
-        "module_5_btn": "5 модуль",
+        "Тариф 2: «Базалық оқу»\n"
+        "❌ 150 000 тг\n"
+        "✅ <b>105 000 тг (30% жеңілдік)</b>\n\n"
 
-        "module_caption": "{module_name} {lesson_num}",
-        "back_modules_btn": "Артқа",
-        "reviews_found": "Пікір: {count}",
-        "show_reviews_btn": "Көру",
-        "back_tariffs_btn": "Артқа",
-        "next_review_btn": "Келесі",
-        "review_caption": "{num}/{total}",
-        "reviews_not_set": "Жоқ",
+        "Бұл тарифке мыналар кіреді:\n"
+        "✅ Бейне курстарға қолжетімділік (барлық оқу базасы).\n"
+        "✅ 3 ай қолдау.\n"
+        "✅ 3 ай ішінде клиент чат арқылы сұрақ қоя алады.\n"
+        "✅ Маңызды: бейне қоңыраулар қарастырылмаған.\n\n"
 
-        "admin_caption": "Чек {user_id}",
-        "admin_ok_btn": "Иә",
-        "admin_no_btn": "Жоқ",
+        "⚠️ Орын саны шектеулі"
+    ),
 
-        "approved_answer": "ОК",
-        "rejected_answer": "Жоқ",
+    "pay_basic_btn": "💳 Базалықты төлеу",
+    "pay_premium_btn": "💳 Премиумды төлеу",
+    "reviews_btn": "⭐ Пікірлер",
+    "support_btn": "🛟 Қолдау",
 
-        "plan_basic": "Базалық",
-        "plan_premium": "Премиум",
+    "payment": (
+        "💳 <b>Kaspi арқылы төлем</b>\n\n"
+        "Алушы: <b>YERLAN KEGENOV</b>\n"
+        "Карта нөмірі: <b>4400 4302 0609 7443</b>\n\n"
+        "Төлем жасағаннан кейін <b>«Мен төледім»</b> батырмасын басып, чекті жіберіңіз."
+    ),
 
-        "intro_fail": "Қате",
-        "module_not_set": "Жоқ",
-    }
+    "i_paid_btn": "✅ Мен төледім",
+    "send_check": "📎 Чекті жіберіңіз (фото немесе файл)",
+    "check_sent": "⏳ Чек әкімшіге жіберілді. Растауды күтіңіз.",
+    "materials_locked": "🔒 Материалдар жабық.\n\nҚолжетімділік төлем жасалғаннан кейін ашылады.",
+    "modules_btn": "📚 Модульдер",
+    "payment_confirmed": "✅ Төлем расталды!\n\nМодульдерге қолжетімділік төменде 👇",
+    "payment_rejected": "❌ Төлем қабылданбады.",
+    "modules_msg": "📚 Модуль таңдаңыз",
+
+    "module_1_btn": "1️⃣ Модуль 1",
+    "module_2_btn": "2️⃣ Модуль 2",
+    "module_3_btn": "3️⃣ Модуль 3",
+    "module_4_btn": "4️⃣ Модуль 4",
+    "module_5_btn": "5️⃣ Модуль 5",
+
+    "module_caption": "📘 {module_name} | Сабақ {lesson_num}",
+    "back_modules_btn": "⬅️ Артқа",
+    "reviews_found": "⭐ Пікірлер саны: {count}",
+    "show_reviews_btn": "▶️ Пікірлерді көру",
+    "back_tariffs_btn": "⬅️ Артқа",
+    "next_review_btn": "▶️ Келесі",
+    "review_caption": "⭐ Пікір {num} / {total}",
+    "reviews_not_set": "⚠️ Пікірлер жоқ",
+
+    "admin_caption": "🧾 Чек\n\nID: {user_id}",
+    "admin_ok_btn": "✅ Растау",
+    "admin_no_btn": "❌ Қабылдамау",
+
+    "approved_answer": "Расталды",
+    "rejected_answer": "Қабылданбады",
+
+    "plan_basic": "Базалық",
+    "plan_premium": "Премиум",
+
+    "intro_fail": "Қате",
+    "module_not_set": "⚠️ Модуль жоқ",
+}
+    
 }
 
 def t(lang: str, key: str, **kwargs):
