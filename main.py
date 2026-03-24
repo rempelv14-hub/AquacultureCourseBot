@@ -428,7 +428,7 @@ TEXTS = {
     "plan_premium": "Премиум",
 
     "intro_fail": "Қате",
-    "module_not_set": "⚠️ Модуль жоқ",
+    "module_not_set": "⚠️ Модуль жоқ"
 }
 
 def t(lang: str, key: str, **kwargs):
